@@ -1,0 +1,133 @@
+
+# SMS Excel Upload
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Excel Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #1d3557;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        button {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        #response {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>SMS Excel Upload</h2>
+
+    <label for="excelFile">Select Excel File:</label>
+
+    <input
+            type="file"
+            id="excelFile"
+            accept=".xlsx,.xls"
+    >
+
+    <button id="uploadBtn" onclick="uploadSmsExcel()">
+        Upload SMS
+    </button>
+
+    <div id="response"></div>
+
+</div>
+
+<script>
+
+    async function uploadSmsExcel() {
+
+        const fileInput = document.getElementById("excelFile");
+        const responseDiv = document.getElementById("response");
+        const uploadBtn = document.getElementById("uploadBtn");
+
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select an Excel file!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+
+            uploadBtn.disabled = true;
+            responseDiv.textContent = "Uploading SMS Excel file...";
+
+            const response = await fetch("/api/excel/SMSupload", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.text();
+
+            if (!response.ok) {
+                throw new Error(result || "Upload failed");
+            }
+
+            responseDiv.textContent = "SUCCESS!\n" + result;
+            responseDiv.style.color = "green";
+
+        } catch (error) {
+
+            responseDiv.textContent = "ERROR!\n" + error.message;
+            responseDiv.style.color = "red";
+
+        } finally {
+
+            uploadBtn.disabled = false;
+
+        }
+    }
+
+</script>
+
+</body>
+</html>
